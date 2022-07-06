@@ -1,26 +1,3 @@
-/* HTTPS GET Example using plain mbedTLS sockets
- *
- * Contacts the howsmyssl.com API via TLS v1.2 and reads a JSON
- * response.
- *
- * Adapted from the ssl_client1 example in mbedtls.
- *
- * Original Copyright (C) 2006-2016, ARM Limited, All Rights Reserved, Apache 2.0 License.
- * Additions Copyright (C) Copyright 2015-2016 Espressif Systems (Shanghai) PTE LTD, Apache 2.0 License.
- *
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 #include <string.h>
 #include <stdlib.h>
 #include "freertos/FreeRTOS.h"
@@ -56,49 +33,8 @@
 
 #define sys_thread_free() vTaskDelete(NULL)
 
-// DELETE
-// #include "cJSON.h"
-
-// DELETE
-// #include "u8g2_esp32_hal.h"
-// #include <u8g2.h>
-
-// DELETE
-// // SDA
-// #define PIN_SDA 5
-// // SCL
-// #define PIN_SCL 4
-
-// DELETE
-// /* Constants that aren't configurable in menuconfig */
-// #define WEB_SERVER "www.commodities-api.com"
-// #define WEB_PORT "443"
-// #define API_KEY "nnzyuh7xyarsdi8646ebicmw86mlv95n0d2o5weuemz6b62lb0zlde7269xz"
-// #define WEB_URL "https://www.commodities-api.com/api/latest?access_key="API_KEY"&base=BRL&symbols=CORN,SOYBEAN,WHEAT"
-
 static const char *TAG_TELNET_SRV = "TelnetServer";
 static const char *TAG_TELNET_CLI = "TelnetClient";
-
-// DELETE
-// static const char REQUEST[] = "GET " WEB_URL " HTTP/1.1\r\n"
-//                              "Host: "WEB_SERVER"\r\n"
-//                              "User-Agent: esp-idf/1.0 esp32\r\n"
-//                              "\r\n";
-
-/* Root cert for howsmyssl.com, taken from server_root_cert.pem
-
-   The PEM file was extracted from the output of this command:
-   openssl s_client -showcerts -connect www.howsmyssl.com:443 </dev/null
-
-   The CA root cert is the last cert given in the chain of certs.
-
-   To embed it in the app binary, the PEM file is named
-   in the component.mk COMPONENT_EMBED_TXTFILES variable.
-*/
-
-// DELETE
-// extern const uint8_t server_root_cert_pem_start[] asm("_binary_server_root_cert_pem_start");
-// extern const uint8_t server_root_cert_pem_end[]   asm("_binary_server_root_cert_pem_end");
 
 void main_task(void *ignore) {
     
@@ -117,8 +53,8 @@ void SocketTelnetServer( void *pvParameters )
     struct sockaddr_in serv_addr, cli_addr;
 
     CLI_Command_Definition_t xSampleCommand={
-        "sample_command",
-        "\r\nsample_command:"
+        "comando_exemplo",
+        "\r\ncomando_exemplo:"
         "\r\n\teste é um exemplo de descrição de comando\r\n",
         NULL,
         0
@@ -182,14 +118,7 @@ void NewClient( void *pvParameters){
     /* The input and output buffers are declared static to keep them off the stack. */
     // static int8_t pcOutputString[ MAX_OUTPUT_LENGTH ], pcInputString[ MAX_INPUT_LENGTH ];
     static char pcOutputString[ MAX_OUTPUT_LENGTH ], pcInputString[ MAX_INPUT_LENGTH ];
-    // CLI_Command_Definition_t xSampleCommand={
-    //         "comando",
-    //         "\r\ncomando:"
-    //         "\r\n\teste é o help do comando, escreva-o com sabedoria",
-    //         NULL,
-    //         0
-    // };
-    // FreeRTOS_CLIRegisterCommand(&xSampleCommand);
+
     nbytes = lwip_read(clientfd, buffer, 128);
     // static const int8_t * pcWelcomeMessage = "Welcome to the FreeRTOS Telnet CLI Server\r\nType Help to view a list of registered commands\r\n";
     static const char * pcWelcomeMessage = "\r\nWelcome to the FreeRTOS Telnet CLI Server\r\nType Help to view a list of registered commands\r\n";
@@ -200,18 +129,13 @@ void NewClient( void *pvParameters){
     {
         /* This implementation reads a single character at a time.  Wait in the
         Blocked state until a character is received. */
-        // len = lwip_recv(clientfd, buffer, sizeof(buffer),0);
         len = lwip_read(clientfd, &cRxedChar, 1);
-        // cRxedChar = buffer[0];
-        // len = read_usb_cdc(&cRxedChar, 1, portMAX_DELAY);
 
         if( cRxedChar == '\r' )
         {
             /* A newline character was received, so the input command string is
             complete and can be processed.  Transmit a line separator, just to
             make the output easier to read. */
-            // lwip_send(clientfd,"\r\n",2,0);
-            // CDC_Transmit_HS("\r\n",2);
 
             /* The command interpreter is called repeatedly until it returns
             pdFALSE.  See the "Implementing a command" documentation for an
@@ -223,12 +147,6 @@ void NewClient( void *pvParameters){
                     /* Send the command string to the command interpreter.  Any
                     output generated by the command interpreter will be placed in the
                     pcOutputString buffer. */
-                    // xMoreDataToFollow = FreeRTOS_CLIProcessCommand
-                    //                 (
-                    //                     (const char *const)pcInputString,   /* The command string.*/
-                    //                     (char*)pcOutputString,  /* The output buffer. */
-                    //                     MAX_OUTPUT_LENGTH/* The size of the output buffer. */
-                    //                 );
                     xMoreDataToFollow = FreeRTOS_CLIProcessCommand
                                     (
                                         pcInputString,   /* The command string.*/
@@ -239,8 +157,6 @@ void NewClient( void *pvParameters){
                     /* Write the output generated by the command interpreter to the
                     console. */
                     lwip_send(clientfd,pcOutputString,strlen(pcOutputString),0);
-                    // lwip_send(clientfd,pcOutputString,strlen((const char*)pcOutputString),0);
-                    // CDC_Transmit_HS(pcOutputString, strlen( pcOutputString ));
 
                 } while( xMoreDataToFollow != pdFALSE );
 
@@ -258,7 +174,7 @@ void NewClient( void *pvParameters){
             character is received. */
 
             // lwip_send(clientfd,&cRxedChar,1,0);
-            // CDC_Transmit_HS( &cRxedChar, 1);
+            
             if( cRxedChar == '\n' )
             {
                 /* Ignore carriage returns. */
@@ -275,9 +191,7 @@ void NewClient( void *pvParameters){
             }
             else if( cRxedChar == '\0')
             {
-                // lwip_send(clientfd,pcWelcomeMessage, strlen( (const char*)pcWelcomeMessage),0);
                 lwip_send(clientfd,pcWelcomeMessage, strlen( pcWelcomeMessage),0);
-                // CDC_Transmit_HS(pcWelcomeMessage, strlen( pcWelcomeMessage));
             }
             else
             {
@@ -298,7 +212,6 @@ void NewClient( void *pvParameters){
     sys_thread_free(); // excluindo a tarefa
 
 	// len = lwip_read(clientfd, buffer, 128);
-    // read_usb_cdc(buffer,128,portMAX_DELAY);
 }
 
 void app_main(void)

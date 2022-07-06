@@ -1,3 +1,3 @@
 # RTOS TELNET CLI USING LWIP
 
-This project implements a simple Telnet RTOS CLI using the LwIP library.
+This project implements a simple Telnet RTOS CLI using the LwIP library on a ESP32.

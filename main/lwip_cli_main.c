@@ -24,6 +24,9 @@
 
 #include "FreeRTOS_CLI.h"
 
+#include "easy_display.h"
+#include <u8x8.h>
+
 #define MAX_INPUT_LENGTH    50
 #define MAX_OUTPUT_LENGTH   100
 
@@ -51,7 +54,23 @@ void SocketTelnetServer( void *pvParameters )
 {
     int sockfd, newsockfd, clilen;
     struct sockaddr_in serv_addr, cli_addr;
+    char buf[64];
+    
+    //getting current esp32 sta ip
+    esp_netif_t* netif = esp_netif_get_handle_from_ifkey("WIFI_STA_DEF");
+    esp_netif_ip_info_t ip_info;
+    
+    esp_netif_get_ip_info(netif, &ip_info);
 
+    if(esp_ip4addr_ntoa(&ip_info.ip, buf, sizeof(buf))==NULL)
+    {
+        return;
+    }
+    ESP_ERROR_CHECK_WITHOUT_ABORT(xDisplayClear());
+    ESP_ERROR_CHECK_WITHOUT_ABORT(xDisplayWrite("Conecte-se ao IP:"));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(xDisplayWrite(buf));
+
+    //creating example command
     CLI_Command_Definition_t xSampleCommand={
         "comando_exemplo",
         "\r\ncomando_exemplo:"
@@ -219,13 +238,14 @@ void app_main(void)
     ESP_ERROR_CHECK( nvs_flash_init() );
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
+    ESP_ERROR_CHECK(xDisplayInit());
 
     /* This helper function configures Wi-Fi or Ethernet, as selected in menuconfig.
      * Read "Establishing Wi-Fi or Ethernet Connection" section in
      * examples/protocols/README.md for more information about this function.
      */
     ESP_ERROR_CHECK(example_connect());
-    xTaskCreate(&main_task, "main_task", 10240, NULL, 5, NULL);
+    // xTaskCreate(&main_task, "main_task", 10240, NULL, 5, NULL);
     xTaskCreate(&SocketTelnetServer, "TelnetCLITask", 10240, NULL, 0, NULL);
     //main_task(NULL);
 }

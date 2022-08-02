@@ -1,5 +1,6 @@
-set(COMPONENT_SRCS "lwip_cli_main.c" "FreeRTOS_CLI.c" "FreeRTOS_CLI.h")
+set(COMPONENT_SRCS "lwip_cli_main.c" "FreeRTOS_CLI.c" "FreeRTOS_CLI.h" "u8g2_esp32_hal.c" "u8g2_esp32_hal.h" "easy_display.c" "easy_display.h")
 set(COMPONENT_ADD_INCLUDEDIRS "")
+set(COMPONENT_ADD_REQUIRES "u8g2")
 
 register_component()
 

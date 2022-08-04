@@ -48,6 +48,33 @@ void main_task(void *ignore) {
         // Infinite loop
     }
 }
+/**
+ * @brief xRemotePrint
+ * @param pcWriteBuffer  	This is the buffer into which any generated output should be written. For example, if the function is simply going to return the fixed string "Hello World", then the string is written into pcWriteBuffer. Output must always be null terminated.
+ * @param xWriteBufferLen  	This is the size of the buffer pointed to by the pcWriteBuffer parameter. Writing more than xWriteBufferLen characters into pcWriteBuffer will cause a buffer overflow.
+ * @param pcCommandString  	A pointer to the entire command string. Having access to the entire command string allows the function implementation to extract the command parameters - if there are any. FreeRTOS+CLI provides helper functions that accept the command string and return the command parameters - so explicit string parsing is not required. Examples are provided on this page.
+ * @return BaseType_t
+*/
+BaseType_t xRemotePrint( int8_t *pcWriteBuffer, size_t xWriteBufferLen, const int8_t *pcCommandString){
+    // "oi, não sei oq!!"
+    if(pcCommandString==NULL){
+        // sprintf(pcWriteBuffer,(int8_t*)"Erro!");
+        pcWriteBuffer = (int8_t*)"Erro!";
+        return pdFALSE;
+    }
+
+    // xDisplayPrint //IMPLEMENTAR ESSA PARTE (ideia: Mostrar IP, linha, mensagens (com IP do cliente??))
+    // pcWriteBuffer[0]=0;
+
+    unsigned int i=0;
+    while(pcCommandString[i]!=0)
+    {
+        pcWriteBuffer[i]=pcCommandString[i];
+        i++;
+    }
+    pcWriteBuffer[i]=0;
+    return pdFALSE;
+}
 
 void NewClient( void *pvParameters);
 void SocketTelnetServer( void *pvParameters )
@@ -72,11 +99,11 @@ void SocketTelnetServer( void *pvParameters )
 
     //creating example command
     CLI_Command_Definition_t xSampleCommand={
-        "comando_exemplo",
-        "\r\ncomando_exemplo:"
-        "\r\n\teste é um exemplo de descrição de comando\r\n",
-        NULL,
-        0
+        "print",
+        "\r\nprint:"
+        "\r\n\teste comando escreve o texto no display\r\n",
+        xRemotePrint,
+        1
     };
     FreeRTOS_CLIRegisterCommand(&xSampleCommand);
 
